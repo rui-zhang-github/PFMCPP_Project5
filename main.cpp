@@ -96,6 +96,7 @@ struct Hotel
     void providLaundryServices(int numberOfClothes = 1);
     void printRoomRatePerNight();
     int reserveRooms(int numberOfRoomsNeeded);
+    void printNumberOfCafes();
 
     struct FrontDesk
     {
@@ -111,7 +112,8 @@ struct Hotel
         void takeServiceRequests(std::string typeOfServices);
         void printBills(int numberOfBillsToPrint = 1);
         void printNumberOfReceptionists();
-        bool coordinateCalls(unsigned int numberOfIncomingCalls);               
+        bool coordinateCalls(unsigned int numberOfIncomingCalls);
+        void printNumberOfPrinters();
     };
 };
 
@@ -178,6 +180,11 @@ int Hotel::reserveRooms(int numberOfRoomsNeeded)
     std::string word2 = (totalNumberOfGuestRooms - numberOfBookedRooms <= 1) ? " room" : " rooms";
     std::cout << totalNumberOfGuestRooms - numberOfBookedRooms << word2 << " available." << std::endl;
     return i;
+}
+
+void Hotel::printNumberOfCafes()
+{
+    std::cout << "There are " << this->numberOfCafes << " cafes in this hotel." << std::endl;
 }
 
 Hotel::FrontDesk::FrontDesk() :
@@ -250,7 +257,12 @@ bool Hotel::FrontDesk::coordinateCalls(unsigned int numberOfIncomingCalls)
         std::cout << "No call taken." << std::endl;
         return false;
     }
-} 
+}
+
+void Hotel::FrontDesk::printNumberOfPrinters()
+{
+    std::cout << "There are " << this->numberOfPrinters << " printers in this hotel." << std::endl;
+}
 
 /*
  copied UDT 2:
@@ -270,6 +282,7 @@ struct Laptop
     void storeData(std::string fileName);
     void printSizeOfScreenInInch();
     void formatDisk(unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp);
+    void printSizeOfRamInGb();
 
     struct Display
     {
@@ -286,6 +299,7 @@ struct Laptop
         void adjustClarity(float clarityInPercentage = 100);
         void printElectricPowerConsumedPerYearInWatts();
         double consumeElectricity(int numberOfYears, int brightnessInPercentage);
+        void printNumberOfPixles();
     };
 };
 
@@ -341,6 +355,11 @@ void Laptop::formatDisk(unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp
     }
 }
 
+void Laptop::printSizeOfRamInGb()
+{
+    std::cout << "This laptop has a RAM of " << this->sizeOfRamInGb << " GB." << std::endl;
+}
+
 Laptop::Display::Display() :
 colorProfile("Adobe RGB"),
 WidthInCm(1.0f)
@@ -385,6 +404,11 @@ double Laptop::Display::consumeElectricity(int numberOfYears, int brightnessInPe
     return electricityConsumedInWatt;
 }
 
+void Laptop::Display::printNumberOfPixles()
+{
+    std::cout << "The Laptop has a display with " << this->numberOfPixles << " pixles." << std::endl;
+}
+
 /*
  copied UDT 3:
  */
@@ -403,6 +427,7 @@ struct PassengerPlane
     void flyAboveTheClouds(std::string from, std::string to);
     void printNumberOfSeats();
     int numberOfLoopsToUnloadAllPassengers(int numberOfDoorsOpened);
+    void printNumberOfSeatsOnPlane();
 };
 
 PassengerPlane::PassengerPlane() :
@@ -452,6 +477,11 @@ int PassengerPlane::numberOfLoopsToUnloadAllPassengers(int numberOfDoorsOpened)
     return numberOfLoops;
 }
 
+void PassengerPlane::printNumberOfSeatsOnPlane()
+{
+    std::cout << "This plane has " << this->numberOfSeats << " seats." << std::endl;
+}
+
 /*
  new UDT 4:
  with 2 member functions
@@ -466,6 +496,7 @@ struct Airport
 
     std::string parkAirplane(int numberOfSeats, double sizeOfThePlane); // return the parking zone name given the number of seats and size of an airplane
     int saveFlightData(int diskSpaceInGb, int fileSizeInGb); // return disk space after saving some flight data of a certain size
+    void printNumberOfDoorsOnPlane();
 };
 
 Airport::Airport()
@@ -520,6 +551,11 @@ int Airport::saveFlightData(int diskSpaceInGb, int fileSizeInGb)
     return laptopA.sizeOfRamInGb;
 }
 
+void Airport::printNumberOfDoorsOnPlane()
+{
+    std::cout << "There are " << this->airplaneA.numberOfDoors << " doors on the plane A in this airport." << std::endl;
+}
+
 /*
  new UDT 5:
  with 2 member functions
@@ -534,6 +570,7 @@ struct VacationResort
 
     void provideFood(int numberOfCafeInHotel); // print number of people that the resort can provide food to
     int processTransactions(std::string CPU, int sizeOfRamInGb); // return the number of transactions that resort can process in a second with the CPU and size of RAM of the PC.
+    void printNumberOfElevatorsInHotel();
 };
 
 VacationResort::VacationResort()
@@ -565,6 +602,11 @@ int VacationResort::processTransactions(std::string CPU, int sizeOfRamInGb)
     return 100000;
 }
 
+void VacationResort::printNumberOfElevatorsInHotel()
+{
+    std::cout << "There are " << this->hotelA.numberOfElevators << " elevators in the hotel of this vacation resort." << std::endl;
+}
+
 /*
  MAKE SURE YOU ARE NOT ON THE MASTER BRANCH
 
@@ -591,6 +633,7 @@ int main()
     daysInn.providLaundryServices(8);
     daysInn.numberOfCafes = 5;
     std::cout << "There are " << daysInn.numberOfCafes << " cafes in this hotel." << std::endl;
+    daysInn.printNumberOfCafes();
     daysInn.printRoomRatePerNight();
     int roomsBooked = daysInn.reserveRooms(31);
     std::cout << "Booked " << roomsBooked << " rooms." << std::endl;
@@ -603,6 +646,7 @@ int main()
     daysInnFrontDesk.printBills(6);
     daysInnFrontDesk.numberOfPrinters = 8;
     std::cout << "There are " << daysInnFrontDesk.numberOfPrinters << " printers in this hotel." << std::endl;
+    daysInnFrontDesk.printNumberOfPrinters();
     daysInnFrontDesk.printNumberOfReceptionists();
     bool isCalling = daysInnFrontDesk.coordinateCalls(4);
     std::cout << "Is the Front Desk Taking Phone Calls? " << (isCalling == true ? "Yes." : "No.") << std::endl;
@@ -611,11 +655,13 @@ int main()
     std::cout << "UDT #2-1: Laptop" << std::endl;
     Laptop macBookPro;
     int numberOfColorCodes = macBookPro.displayImage("juce.jpg");
+    std::cout << "The file displayed has " << numberOfColorCodes << " different hex colors." << std::endl;
     macBookPro.playAudio("Suspended Animation.mp3");
     macBookPro.storeData("main.cpp");
-    std::cout << "The file displayed has " << numberOfColorCodes << " different hex colors." << std::endl;
     macBookPro.printSizeOfScreenInInch();
     macBookPro.formatDisk(10);
+    std::cout << "This laptop has a RAM of " << macBookPro.sizeOfRamInGb << " GB." << std::endl;
+    macBookPro.printSizeOfRamInGb();
     std::cout << std::endl; 
 
     std::cout << "UDT #2-2: Display of a Laptop" << std::endl;
@@ -625,6 +671,7 @@ int main()
     macBookProRetinaDisplay.adjustClarity(50);
     macBookProRetinaDisplay.numberOfPixles = 1000000000;
     std::cout << "The Laptop has display with " << macBookProRetinaDisplay.numberOfPixles << " pixles." << std::endl;
+    macBookProRetinaDisplay.printNumberOfPixles();
     macBookProRetinaDisplay.printElectricPowerConsumedPerYearInWatts(); 
     double totalElectricityConsumed = macBookProRetinaDisplay.consumeElectricity(5, 80);
     std::cout << "Consumed " << totalElectricityConsumed << " Watts of electricity." << std::endl;
@@ -638,6 +685,7 @@ int main()
     boeing737.numberOfSeats = 31;
     std::cout << "This plane has " << boeing737.numberOfSeats << " seats." << std::endl;
     boeing737.printNumberOfSeats();
+    boeing737.printNumberOfSeatsOnPlane();
     int numberOfLoopsToFullyUnload = boeing737.numberOfLoopsToUnloadAllPassengers(6);
     std::cout << "It will take " << numberOfLoopsToFullyUnload << " loops to fully unload all passengers from the plane." << std::endl;
     std::cout << std::endl; 
@@ -648,6 +696,8 @@ int main()
     std::cout << "Please park at the " << parkingZone << "." << std::endl;
     int diskSpaceRemainingInGB = airportA.saveFlightData(50, 8);
     std::cout << "Disk space remaining: " << diskSpaceRemainingInGB << " GB." << std::endl;
+    std::cout << "There are " << airportA.airplaneA.numberOfDoors << " doors on the plane A in this airport." << std::endl;
+    airportA.printNumberOfDoorsOnPlane();
     std::cout << std::endl;
 
     std::cout << "UDT #5: Vacation Resort" << std::endl;
@@ -655,6 +705,8 @@ int main()
     vacationResortA.provideFood(5);
     int numberOfTransactionsPerSecond = vacationResortA.processTransactions("Quad-Core Intel Core i5", 8);
     std::cout << "The number of transactions the computer of the resort can handle per second: " << numberOfTransactionsPerSecond << "." << std::endl;
+    std::cout << "There are " << vacationResortA.hotelA.numberOfElevators << " elevators in the hotel of this vacation resort." << std::endl;
+    vacationResortA.printNumberOfElevatorsInHotel();
     std::cout << std::endl;
     
     std::cout << "good to go!" << std::endl;
