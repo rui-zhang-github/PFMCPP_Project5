@@ -80,6 +80,7 @@ void Axe::aConstMemberFunction() const { }
 
 
 #include <iostream>
+#include "LeakedObjectDetector.h"
 /*
  copied UDT 1:
  */
@@ -95,12 +96,12 @@ struct Hotel
     int totalNumberOfCustomersStayingTonight;
     int totalNumberOfLugages = 0;
 
-    int storeLugages(int numberOfLugages = 1); 
-    int hostCustomers(int numberOfCustomers = 1); 
-    void providLaundryServices(int numberOfClothes = 1);
-    void printRoomRatePerNight();
-    int reserveRooms(int numberOfRoomsNeeded);
-    void printNumberOfCafes();
+    int storeLugages(const int numberOfLugages = 1); 
+    int hostCustomers(const int numberOfCustomers = 1);  
+    void providLaundryServices(const int numberOfClothes = 1) const;
+    void printRoomRatePerNight() const;
+    int reserveRooms(const int numberOfRoomsNeeded);
+    void printNumberOfCafes() const;
 
     struct FrontDesk
     {
@@ -112,13 +113,15 @@ struct Hotel
         int numberOfTelephones = 3;
         int numberOfReceptionists { 2 };
 
-        void checkCustomersIn(int numberOfCustomers = 1);
-        void takeServiceRequests(std::string typeOfServices);
-        void printBills(int numberOfBillsToPrint = 1);
-        void printNumberOfReceptionists();
-        bool coordinateCalls(unsigned int numberOfIncomingCalls);
-        void printNumberOfPrinters();
+        void checkCustomersIn(const int numberOfCustomers = 1) const;
+        void takeServiceRequests(const std::string typeOfServices) const;
+        void printBills(const int numberOfBillsToPrint = 1) const;
+        void printNumberOfReceptionists() const;
+        bool coordinateCalls(const unsigned int numberOfIncomingCalls) const;
+        void printNumberOfPrinters() const;
     };
+
+    JUCE_LEAK_DETECTOR(Hotel)
 };
 
 Hotel::Hotel() : 
@@ -133,21 +136,21 @@ Hotel::~Hotel()
     std::cout << "Destroyed a hotel." << std::endl;
 }
 
-int Hotel::storeLugages(int numberOfLugages)
+int Hotel::storeLugages(const int numberOfLugages)
 {
     totalNumberOfLugages += numberOfLugages;
     std::cout << "After adding "  << numberOfLugages << " lugages, the hotel is storing a total of " << totalNumberOfLugages <<  " lugages."  << std::endl;
     return totalNumberOfLugages;
 }
 
-int Hotel::hostCustomers(int numberOfCustomers)
+int Hotel::hostCustomers(const int numberOfCustomers)
 {
     totalNumberOfCustomersStayingTonight += numberOfCustomers;
     std::cout << "After checking in "  << numberOfCustomers << " new guest(s), the hotel now has a total number of " << totalNumberOfCustomersStayingTonight <<  " guest(s) staying." << std::endl;
     return totalNumberOfCustomersStayingTonight;
 }
 
-void Hotel::providLaundryServices(int numberOfClothes)
+void Hotel::providLaundryServices(const int numberOfClothes) const
 {
     if(numberOfClothes < 2)
     {
@@ -159,12 +162,12 @@ void Hotel::providLaundryServices(int numberOfClothes)
     }
 }
 
-void Hotel::printRoomRatePerNight()
+void Hotel::printRoomRatePerNight() const
 {
     std::cout << "Tonight's room rate is $" << roomRatePerNight << "." <<  std::endl;
 }
 
-int Hotel::reserveRooms(int numberOfRoomsNeeded)
+int Hotel::reserveRooms(const int numberOfRoomsNeeded)
 {
     std::cout << "Return the number of rooms reserved per function call." << std::endl;
     int i = 0;
@@ -186,7 +189,7 @@ int Hotel::reserveRooms(int numberOfRoomsNeeded)
     return i;
 }
 
-void Hotel::printNumberOfCafes()
+void Hotel::printNumberOfCafes() const
 {
     std::cout << "There are " << this->numberOfCafes << " cafes in this hotel." << std::endl;
 }
@@ -202,7 +205,7 @@ Hotel::FrontDesk::~FrontDesk()
     std::cout << "Destroyed a front desk within the hotel." << std::endl;
 }
 
-void Hotel::FrontDesk::checkCustomersIn(int numberOfCustomers)
+void Hotel::FrontDesk::checkCustomersIn(const int numberOfCustomers) const
 {
     if(numberOfCustomers < 2)
     {
@@ -214,12 +217,12 @@ void Hotel::FrontDesk::checkCustomersIn(int numberOfCustomers)
     }  
 }
 
-void Hotel::FrontDesk::takeServiceRequests(std::string typeOfServices)
+void Hotel::FrontDesk::takeServiceRequests(const std::string typeOfServices) const
 {
     std::cout << typeOfServices << " service request has been taken." << std::endl; 
 }
 
-void Hotel::FrontDesk::printBills(int numberOfBillsToPrint)
+void Hotel::FrontDesk::printBills(const int numberOfBillsToPrint) const
 {
     if(numberOfBillsToPrint < 2)
     {
@@ -231,7 +234,7 @@ void Hotel::FrontDesk::printBills(int numberOfBillsToPrint)
     }
 }
 
-void Hotel::FrontDesk::printNumberOfReceptionists()
+void Hotel::FrontDesk::printNumberOfReceptionists() const
 {
     if(numberOfReceptionists > 1)
     {
@@ -243,7 +246,7 @@ void Hotel::FrontDesk::printNumberOfReceptionists()
     }
 }
 
-bool Hotel::FrontDesk::coordinateCalls(unsigned int numberOfIncomingCalls)
+bool Hotel::FrontDesk::coordinateCalls(const unsigned int numberOfIncomingCalls) const
 {
     std::cout << "Return boolean values if there are incoming calls to the front desk." << std::endl;
     if(numberOfIncomingCalls > 0)
@@ -263,10 +266,17 @@ bool Hotel::FrontDesk::coordinateCalls(unsigned int numberOfIncomingCalls)
     }
 }
 
-void Hotel::FrontDesk::printNumberOfPrinters()
+void Hotel::FrontDesk::printNumberOfPrinters() const
 {
     std::cout << "There are " << this->numberOfPrinters << " printers in this hotel." << std::endl;
 }
+
+struct HotelWrapper 
+{
+    HotelWrapper(Hotel* ptr) : hotelPtr(ptr) {}
+    ~HotelWrapper() { delete hotelPtr; }
+    Hotel* hotelPtr = nullptr;
+};
 
 /*
  copied UDT 2:
@@ -281,12 +291,12 @@ struct Laptop
     std::string typeOfOperatingSystem = "Linux";
     int sizeOfDiskSpaceInGb;
 
-    int displayImage(std::string fileName); 
-    void playAudio(std::string fileName);
-    void storeData(std::string fileName);
-    void printSizeOfScreenInInch();
-    void formatDisk(unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp);
-    void printSizeOfRamInGb();
+    int displayImage(const std::string fileName) const; 
+    void playAudio(const std::string fileName) const;
+    void storeData(const std::string fileName) const;
+    void printSizeOfScreenInInch() const;
+    void formatDisk(const unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp) const;
+    void printSizeOfRamInGb() const;
 
     struct Display
     {
@@ -298,13 +308,15 @@ struct Laptop
         float lengthInCm { 1.0f };
         float WidthInCm;
 
-        void displayColor(std::string hexColorCode = "FF5733");
-        void adjustBrightness(int brightnessInPercentage = 50);
-        void adjustClarity(float clarityInPercentage = 100);
-        void printElectricPowerConsumedPerYearInWatts();
-        double consumeElectricity(int numberOfYears, int brightnessInPercentage);
-        void printNumberOfPixles();
+        void displayColor(const std::string hexColorCode = "FF5733") const;
+        void adjustBrightness(const int brightnessInPercentage = 50) const;
+        void adjustClarity(const float clarityInPercentage = 100) const;
+        void printElectricPowerConsumedPerYearInWatts() const;
+        double consumeElectricity(const int numberOfYears, const int brightnessInPercentage) const;
+        void printNumberOfPixles() const;
     };
+
+    JUCE_LEAK_DETECTOR(Laptop)
 };
 
 Laptop::Laptop() :
@@ -319,29 +331,29 @@ Laptop::~Laptop()
     std::cout << "Destroyed a laptop." << std::endl;
 }
 
-int Laptop::displayImage(std::string fileName)
+int Laptop::displayImage(const std::string fileName) const
 {
     std::cout << "Now displaying: " << fileName << std::endl;
     int numberOfDifferentHexColorCodes = 0;
     return numberOfDifferentHexColorCodes;
 }
 
-void Laptop::playAudio(std::string fileName)
+void Laptop::playAudio(const std::string fileName) const
 {
     std::cout << "Now playing: " << fileName << std::endl;
 }
 
-void Laptop::storeData(std::string fileName)
+void Laptop::storeData(const std::string fileName) const
 {
     std::cout << fileName << " has been stored the hard drive." << std::endl;
 }
 
-void Laptop::printSizeOfScreenInInch()
+void Laptop::printSizeOfScreenInInch() const
 {
     std::cout << "This is a " << sizeOfScreenInInch << "in screen."<< std::endl;
 }
 
-void Laptop::formatDisk(unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp)
+void Laptop::formatDisk(const unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp) const
 {
     std::cout << "This function prints out the disk space that has been freed up by formatting based on the user input as the function parameter." << std::endl;
     if(percentageOfTotalDiskSpaceNeededToBeFreedUp <= 100)
@@ -359,7 +371,7 @@ void Laptop::formatDisk(unsigned int percentageOfTotalDiskSpaceNeededToBeFreedUp
     }
 }
 
-void Laptop::printSizeOfRamInGb()
+void Laptop::printSizeOfRamInGb() const
 {
     std::cout << "This laptop has a RAM of " << this->sizeOfRamInGb << " GB." << std::endl;
 }
@@ -376,27 +388,27 @@ Laptop::Display::~Display()
     std::cout << "Destroyed a display of a laptop." << std::endl;
 }
 
-void Laptop::Display::displayColor(std::string hexColorCode)
+void Laptop::Display::displayColor(const std::string hexColorCode) const
 {
     std::cout << "This is the color of hex code " << hexColorCode << std::endl;
 }
 
-void Laptop::Display::adjustBrightness(int brightnessInPercentage)
+void Laptop::Display::adjustBrightness(const int brightnessInPercentage) const
 {
     std::cout << "Current brightness is " << brightnessInPercentage << "%." << std::endl;
 }
 
-void Laptop::Display::adjustClarity(float clarityInPercentage)
+void Laptop::Display::adjustClarity(const float clarityInPercentage) const
 {
     std::cout << "Current clarity is " << clarityInPercentage << "%." << std::endl;
 }
 
-void Laptop::Display::printElectricPowerConsumedPerYearInWatts()
+void Laptop::Display::printElectricPowerConsumedPerYearInWatts() const
 {
     std::cout << "This display consumes " << electricPowerConsumedPerYearInWatts << "W electricity per year."<< std::endl;
 }
 
-double Laptop::Display::consumeElectricity(int numberOfYears, int brightnessInPercentage)
+double Laptop::Display::consumeElectricity(const int numberOfYears, const int brightnessInPercentage) const
 {
     std::cout << "Print electricity consumed while it is on for X number of years." << std::endl;
     double electricityConsumedInWatt = 0.00;
@@ -408,10 +420,17 @@ double Laptop::Display::consumeElectricity(int numberOfYears, int brightnessInPe
     return electricityConsumedInWatt;
 }
 
-void Laptop::Display::printNumberOfPixles()
+void Laptop::Display::printNumberOfPixles() const
 {
-    std::cout << "The Laptop has a display with " << this->numberOfPixles << " pixles." << std::endl;
+    std::cout << "The Laptop has a displconst ay with " << this->numberOfPixles << " pixles." << std::endl;
 }
+
+struct LaptopWrapper
+{
+    LaptopWrapper(Laptop* ptr) : LaptopPtr(ptr) {}
+    ~LaptopWrapper() { delete LaptopPtr; }
+    Laptop* LaptopPtr = nullptr;
+};
 
 /*
  copied UDT 3:
@@ -426,12 +445,14 @@ struct PassengerPlane
     double sizeOfThePlane { 100 };
     int numberOfEngines;
 
-    void carryPassengers(int numberOfPassengers);
-    void provideMultimediaEntertainment(std::string mediaType);
-    void flyAboveTheClouds(std::string from, std::string to);
-    void printNumberOfSeats();
-    int numberOfLoopsToUnloadAllPassengers(int numberOfDoorsOpened);
-    void printNumberOfSeatsOnPlane();
+    void carryPassengers(const int numberOfPassengers) const;
+    void provideMultimediaEntertainment(const std::string mediaType) const;
+    void flyAboveTheClouds(const std::string from, const std::string to) const;
+    void printNumberOfSeats() const;
+    int numberOfLoopsToUnloadAllPassengers(const int numberOfDoorsOpened) const;
+    void printNumberOfSeatsOnPlane() const;
+
+    JUCE_LEAK_DETECTOR(PassengerPlane)
 };
 
 PassengerPlane::PassengerPlane() :
@@ -446,27 +467,27 @@ PassengerPlane::~PassengerPlane()
     std::cout << "Destroyed a passenger plane." << std::endl;
 }
 
-void PassengerPlane::carryPassengers(int numberOfPassengers)
+void PassengerPlane::carryPassengers(const int numberOfPassengers) const
 {
     std::cout << "There are " << numberOfPassengers << " passengers on the plane." << std::endl;
 }
 
-void PassengerPlane::provideMultimediaEntertainment(std::string mediaType)
+void PassengerPlane::provideMultimediaEntertainment(const std::string mediaType) const
 {
     std::cout << "Now playing: " << mediaType << std::endl;
 }
 
-void PassengerPlane::flyAboveTheClouds(std::string from, std::string to)
+void PassengerPlane::flyAboveTheClouds(const std::string from, const std::string to) const
 {
     std::cout << "This flight is from " << from << " to " << to << std::endl;
 }
 
-void PassengerPlane::printNumberOfSeats()
+void PassengerPlane::printNumberOfSeats() const
 {
     std::cout << "There are " << numberOfSeats << " seats on the plane." << std::endl;
 }
 
-int PassengerPlane::numberOfLoopsToUnloadAllPassengers(int numberOfDoorsOpened)
+int PassengerPlane::numberOfLoopsToUnloadAllPassengers(const int numberOfDoorsOpened) const
 {
     std::cout << "Print and return number of loops to unload all the passengers assuming flying at full capacity." << std::endl;
     int numberOfLoops = 0;
@@ -481,10 +502,17 @@ int PassengerPlane::numberOfLoopsToUnloadAllPassengers(int numberOfDoorsOpened)
     return numberOfLoops;
 }
 
-void PassengerPlane::printNumberOfSeatsOnPlane()
+void PassengerPlane::printNumberOfSeatsOnPlane() const
 {
     std::cout << "This plane has " << this->numberOfSeats << " seats." << std::endl;
 }
+
+struct PassengerPlaneWrapper
+{
+    PassengerPlaneWrapper(PassengerPlane* ptr) : passengerPlanePtr(ptr) {}
+    ~PassengerPlaneWrapper() { delete passengerPlanePtr; }
+    PassengerPlane* passengerPlanePtr = nullptr;
+};
 
 /*
  new UDT 4:
@@ -498,9 +526,11 @@ struct Airport
     PassengerPlane airplaneA;
     Laptop laptopA;
 
-    std::string parkAirplane(int numberOfSeats, double sizeOfThePlane); // return the parking zone name given the number of seats and size of an airplane
-    int saveFlightData(int diskSpaceInGb, int fileSizeInGb); // return disk space after saving some flight data of a certain size
-    void printNumberOfDoorsOnPlane();
+    std::string parkAirplane(const int numberOfSeats, const double sizeOfThePlane); // return the parking zone name given the number of seats and size of an airplane
+    int saveFlightData(const int diskSpaceInGb, int fileSizeInGb); // return disk space after saving some flight data of a certain size
+    void printNumberOfDoorsOnPlane() const;
+
+    JUCE_LEAK_DETECTOR(Airport)
 };
 
 Airport::Airport()
@@ -513,7 +543,7 @@ Airport::~Airport()
     std::cout << "Destroyed an airport that includes passenger planes and computers/laptops." << std::endl;
 }
 
-std::string Airport::parkAirplane(int numberOfSeats, double sizeOfThePlane)
+std::string Airport::parkAirplane(const int numberOfSeats, const double sizeOfThePlane)
 {
     airplaneA.numberOfSeats = numberOfSeats;
     airplaneA.sizeOfThePlane = sizeOfThePlane;
@@ -535,7 +565,7 @@ std::string Airport::parkAirplane(int numberOfSeats, double sizeOfThePlane)
     } 
 }
 
-int Airport::saveFlightData(int diskSpaceInGb, int fileSizeInGb)
+int Airport::saveFlightData(const int diskSpaceInGb, int fileSizeInGb)
 {
     laptopA.sizeOfRamInGb = diskSpaceInGb;
     if(fileSizeInGb <= laptopA.sizeOfRamInGb)
@@ -555,10 +585,17 @@ int Airport::saveFlightData(int diskSpaceInGb, int fileSizeInGb)
     return laptopA.sizeOfRamInGb;
 }
 
-void Airport::printNumberOfDoorsOnPlane()
+void Airport::printNumberOfDoorsOnPlane() const
 {
     std::cout << "There are " << this->airplaneA.numberOfDoors << " doors on the plane A in this airport." << std::endl;
 }
+
+struct AirportWrapper
+{
+    AirportWrapper(Airport* ptr) : airportPtr(ptr) {}
+    ~AirportWrapper() { delete airportPtr; }
+    Airport* airportPtr = nullptr;
+};
 
 /*
  new UDT 5:
@@ -572,9 +609,11 @@ struct VacationResort
     Hotel hotelA;
     Laptop laptopA;
 
-    void provideFood(int numberOfCafeInHotel); // print number of people that the resort can provide food to
-    int processTransactions(std::string CPU, int sizeOfRamInGb); // return the number of transactions that resort can process in a second with the CPU and size of RAM of the PC.
-    void printNumberOfElevatorsInHotel();
+    void provideFood(const int numberOfCafeInHotel); // print number of people that the resort can provide food to
+    int processTransactions(const std::string CPU, const int sizeOfRamInGb); // return the number of transactions that resort can process in a second with the CPU and size of RAM of the PC.
+    void printNumberOfElevatorsInHotel() const;
+
+    JUCE_LEAK_DETECTOR(VacationResort)
 };
 
 VacationResort::VacationResort()
@@ -587,13 +626,13 @@ VacationResort::~VacationResort()
     std::cout << "Destroyed a vacation resort that includes hotels and computers/laptops." << std::endl;
 }
 
-void VacationResort::provideFood(int numberOfCafeInHotel)
+void VacationResort::provideFood(const int numberOfCafeInHotel)
 {
     hotelA.numberOfCafes = numberOfCafeInHotel;
     std::cout << "The vacation resort can provide food to " << hotelA.numberOfCafes * 100 << " people per hour." << std::endl;
 }
 
-int VacationResort::processTransactions(std::string CPU, int sizeOfRamInGb)
+int VacationResort::processTransactions(const std::string CPU, const int sizeOfRamInGb)
 {
     laptopA.typeOfCPU = CPU;
     laptopA.sizeOfRamInGb = sizeOfRamInGb;
@@ -606,10 +645,17 @@ int VacationResort::processTransactions(std::string CPU, int sizeOfRamInGb)
     return 100000;
 }
 
-void VacationResort::printNumberOfElevatorsInHotel()
+void VacationResort::printNumberOfElevatorsInHotel() const
 {
     std::cout << "There are " << this->hotelA.numberOfElevators << " elevators in the hotel of this vacation resort." << std::endl;
 }
+
+struct VacationResortWrapper
+{
+    VacationResortWrapper(VacationResort* ptr) : vacationResortPtr(ptr) {}
+    ~VacationResortWrapper() { delete vacationResortPtr; }
+    VacationResort* vacationResortPtr = nullptr;
+};
 
 /*
  MAKE SURE YOU ARE NOT ON THE MASTER BRANCH
@@ -629,17 +675,17 @@ void VacationResort::printNumberOfElevatorsInHotel()
 int main()
 {
     std::cout << "UDT #1-1: Hotel" << std::endl;
-    Hotel daysInn;
-    int tLugages = daysInn.storeLugages(2);
+    HotelWrapper daysInn( new Hotel() );
+    int tLugages = daysInn.hotelPtr->storeLugages(2);
     std::cout << "Stored " << tLugages << " lugages." << std::endl;
-    int tCustomers = daysInn.hostCustomers(6);
+    int tCustomers = daysInn.hotelPtr->hostCustomers(6);
     std::cout << "Hosted " << tCustomers << " customers." << std::endl;
-    daysInn.providLaundryServices(8);
-    daysInn.numberOfCafes = 5;
-    std::cout << "There are " << daysInn.numberOfCafes << " cafes in this hotel." << std::endl;
-    daysInn.printNumberOfCafes();
-    daysInn.printRoomRatePerNight();
-    int roomsBooked = daysInn.reserveRooms(31);
+    daysInn.hotelPtr->providLaundryServices(8);
+    daysInn.hotelPtr->numberOfCafes = 5;
+    std::cout << "There are " << daysInn.hotelPtr->numberOfCafes << " cafes in this hotel." << std::endl;
+    daysInn.hotelPtr->printNumberOfCafes();
+    daysInn.hotelPtr->printRoomRatePerNight();
+    int roomsBooked = daysInn.hotelPtr->reserveRooms(31);
     std::cout << "Booked " << roomsBooked << " rooms." << std::endl;
     std::cout << std::endl;
 
@@ -657,16 +703,16 @@ int main()
     std::cout << std::endl;
 
     std::cout << "UDT #2-1: Laptop" << std::endl;
-    Laptop macBookPro;
-    int numberOfColorCodes = macBookPro.displayImage("juce.jpg");
+    LaptopWrapper macBookPro( new Laptop() );
+    int numberOfColorCodes = macBookPro.LaptopPtr->displayImage("juce.jpg");
     std::cout << "The file displayed has " << numberOfColorCodes << " different hex colors." << std::endl;
-    macBookPro.playAudio("Suspended Animation.mp3");
-    macBookPro.storeData("main.cpp");
-    macBookPro.printSizeOfScreenInInch();
-    macBookPro.formatDisk(10);
-    std::cout << "This laptop has a RAM of " << macBookPro.sizeOfRamInGb << " GB." << std::endl;
-    macBookPro.printSizeOfRamInGb();
-    std::cout << std::endl; 
+    macBookPro.LaptopPtr->playAudio("Suspended Animation.mp3");
+    macBookPro.LaptopPtr->storeData("main.cpp");
+    macBookPro.LaptopPtr->printSizeOfScreenInInch();
+    macBookPro.LaptopPtr->formatDisk(10);
+    std::cout << "This laptop has a RAM of " << macBookPro.LaptopPtr->sizeOfRamInGb << " GB." << std::endl;
+    macBookPro.LaptopPtr->printSizeOfRamInGb();
+    std::cout << std::endl;
 
     std::cout << "UDT #2-2: Display of a Laptop" << std::endl;
     Laptop::Display macBookProRetinaDisplay;
@@ -682,35 +728,35 @@ int main()
     std::cout << std::endl;
 
     std::cout << "UDT #3: Passenger Plane" << std::endl;
-    PassengerPlane boeing737;
-    boeing737.carryPassengers(300);
-    boeing737.provideMultimediaEntertainment("Movies");
-    boeing737.flyAboveTheClouds("New York", "San Francisco");
-    boeing737.numberOfSeats = 31;
-    std::cout << "This plane has " << boeing737.numberOfSeats << " seats." << std::endl;
-    boeing737.printNumberOfSeats();
-    boeing737.printNumberOfSeatsOnPlane();
-    int numberOfLoopsToFullyUnload = boeing737.numberOfLoopsToUnloadAllPassengers(6);
+    PassengerPlaneWrapper boeing737( new PassengerPlane() );
+    boeing737.passengerPlanePtr->carryPassengers(300);
+    boeing737.passengerPlanePtr->provideMultimediaEntertainment("Movies");
+    boeing737.passengerPlanePtr->flyAboveTheClouds("New York", "San Francisco");
+    boeing737.passengerPlanePtr->numberOfSeats = 31;
+    std::cout << "This plane has " << boeing737.passengerPlanePtr->numberOfSeats << " seats." << std::endl;
+    boeing737.passengerPlanePtr->printNumberOfSeats();
+    boeing737.passengerPlanePtr->printNumberOfSeatsOnPlane();
+    int numberOfLoopsToFullyUnload = boeing737.passengerPlanePtr->numberOfLoopsToUnloadAllPassengers(6);
     std::cout << "It will take " << numberOfLoopsToFullyUnload << " loops to fully unload all passengers from the plane." << std::endl;
     std::cout << std::endl; 
 
     std::cout << "UDT #4: Airport" << std::endl;
-    Airport airportA;
-    std::string parkingZone = airportA.parkAirplane(100, 200);
+    AirportWrapper airportA( new Airport() );
+    std::string parkingZone = airportA.airportPtr->parkAirplane(100, 200);
     std::cout << "Please park at the " << parkingZone << "." << std::endl;
-    int diskSpaceRemainingInGB = airportA.saveFlightData(50, 8);
+    int diskSpaceRemainingInGB = airportA.airportPtr->saveFlightData(50, 8);
     std::cout << "Disk space remaining: " << diskSpaceRemainingInGB << " GB." << std::endl;
-    std::cout << "There are " << airportA.airplaneA.numberOfDoors << " doors on the plane A in this airport." << std::endl;
-    airportA.printNumberOfDoorsOnPlane();
+    std::cout << "There are " << airportA.airportPtr->airplaneA.numberOfDoors << " doors on the plane A in this airport." << std::endl;
+    airportA.airportPtr->printNumberOfDoorsOnPlane();
     std::cout << std::endl;
 
     std::cout << "UDT #5: Vacation Resort" << std::endl;
-    VacationResort vacationResortA;
-    vacationResortA.provideFood(5);
-    int numberOfTransactionsPerSecond = vacationResortA.processTransactions("Quad-Core Intel Core i5", 8);
+    VacationResortWrapper vacationResortA( new VacationResort() );
+    vacationResortA.vacationResortPtr->provideFood(5);
+    int numberOfTransactionsPerSecond = vacationResortA.vacationResortPtr->processTransactions("Quad-Core Intel Core i5", 8);
     std::cout << "The number of transactions the computer of the resort can handle per second: " << numberOfTransactionsPerSecond << "." << std::endl;
-    std::cout << "There are " << vacationResortA.hotelA.numberOfElevators << " elevators in the hotel of this vacation resort." << std::endl;
-    vacationResortA.printNumberOfElevatorsInHotel();
+    std::cout << "There are " << vacationResortA.vacationResortPtr->hotelA.numberOfElevators << " elevators in the hotel of this vacation resort." << std::endl;
+    vacationResortA.vacationResortPtr->printNumberOfElevatorsInHotel();
     std::cout << std::endl;
     
     std::cout << "good to go!" << std::endl;
