@@ -1,3 +1,3 @@
 language = "cpp"
-run = "clang++ -std=c++17 -Wno-deprecated -Wno-padded -Weverything -Wno-c++98-compat -Wno-missing-prototypes -Wno-exit-time-destructors main.cpp && ./a.out"
+run = "clang++ -std=c++17 -Wno-deprecated -Wno-padded -Weverything -Wno-c++98-compat -Wno-missing-prototypes -Wno-exit-time-destructors -Wno-pragma-once-outside-header main.cpp Hotel.cpp Laptop.cpp PassengerPlane.cpp Airport.cpp VacationResort.cpp Wrapper.cpp && ./a.out"
 hidden = ["ccls"]
